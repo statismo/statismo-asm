@@ -38,8 +38,16 @@ std::string basename(std::string fullname) {
 int main(int argc, char *argv[]) {
 
 
-    std::string imagesDirectory("/tmp/ulna/i");
-    std::string meshesDirectory("/tmp/ulna/m");
+    if (argc < 5) {
+        std::cerr << "usage: " << argv[0] << " imagedir meshdir referenceMesh outputfile" << std::endl;
+        exit(-1);
+    }
+
+
+    std::string imagesDirectory(argv[1]);
+    std::string meshesDirectory(argv[2]);
+    std::string referenceMeshFilename(argv[3]);
+    std::string asmFilename(argv[4]);
 
     StringVectorType imageFiles;
     loadDirectory(imagesDirectory, imageFiles, ".nii");
@@ -76,7 +84,7 @@ int main(int argc, char *argv[]) {
     }
 
     MeshReaderType::Pointer reader = MeshReaderType::New();
-    reader->SetFileName("/tmp/ulna/m/vsd-7.vtk");
+    reader->SetFileName(referenceMeshFilename.c_str());
     reader->Update();
     MeshType::Pointer refMesh = reader->GetOutput();
 
@@ -101,7 +109,7 @@ int main(int argc, char *argv[]) {
     // build!
     ASMBuilderType::Pointer asmBuilder = ASMBuilderType::New();
     ActiveShapeModelType::Pointer newModel = asmBuilder->BuildNewModel(representer, data, featureExtractor, preprocessor, pointIdSampler);
-    newModel->Save("/tmp/asm-c.h5");
+    newModel->Save(asmFilename);
 
     std::cout << "DONE" <<std::endl;
 
